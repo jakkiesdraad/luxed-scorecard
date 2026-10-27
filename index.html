@@ -215,8 +215,13 @@ document.getElementById("go").addEventListener("click", () => {
   document.getElementById("band").className = "band " + band.cls;
   document.getElementById("band").textContent = band.name;
   document.getElementById("verdict").textContent = band.verdict;
+  // A tie across all six areas has no "weakest" dimension — say so instead of
+  // naming the first two in array order.
+  const weak = weakest(answers);
   document.getElementById("scoreline").textContent =
-    `${total} of 24 · your weakest dimension: ${weakest(answers)}`;
+    `${total} of 24 · ` + (weak
+      ? `your weakest dimension: ${weak}`
+      : `all six areas scored ${Math.min(...answers)} of 4`);
 
   let body = band.body;
   if (total <= 11) {
@@ -228,7 +233,8 @@ document.getElementById("go").addEventListener("click", () => {
 });
 
 function weakest(ans) {
-  let low = Math.min(...ans);
+  const low = Math.min(...ans);
+  if (low === Math.max(...ans)) return null; // all six tie — no weakest area
   const dims = ans.map((v, i) => v === low ? QUESTIONS[i].dim : null).filter(Boolean);
   return dims.slice(0, 2).join(" and ").toLowerCase();
 }
